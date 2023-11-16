@@ -66,11 +66,11 @@ else:
     tests_require = ['pytest', virtualenv_version]
 
 setup(
-    name="teamcity-messages",
+    name="dotkrnl-teamcity-messages",
     version=VERSION,
     author='JetBrains',
     author_email='teamcity-feedback@jetbrains.com',
-    description='Send test results ' +
+    description='Send test results at a finer granularity so that it is more evenly distributed when parallalized ' +
                 'to TeamCity continuous integration server from unittest, nose, py.test, twisted trial, behave (Python 2.6+)',
     long_description=README + '\n\n' + CHANGES,
     license='Apache 2.0',
@@ -89,7 +89,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Topic :: Software Development :: Testing'
     ],
-    url="https://github.com/JetBrains/teamcity-messages",
+    url="https://github.com/dotkrnl/teamcity-messages",
     platforms=["any"],
 
     packages=["teamcity", "twisted.plugins"],

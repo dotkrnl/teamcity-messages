@@ -147,7 +147,7 @@ class EchoTeamCityMessages(object):
         if first_bracket > 0:
             # Replace hierarchy "." in parameters to "_" in parameters
             params = test_id[first_bracket + 1:-1].replace(".", "_")
-            
+
             # Remove parameters from testid
             test_id = test_id[:first_bracket]
         else:
