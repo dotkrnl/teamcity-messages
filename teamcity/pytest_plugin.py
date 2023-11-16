@@ -126,33 +126,44 @@ class EchoTeamCityMessages(object):
         if id_from_location is not None:
             return id_from_location
 
+        # Obtain test ID
         test_id = nodeid
-
         if test_id:
             if test_id.find("::") < 0:
                 test_id += "::top_level"
         else:
             test_id = "top_level"
 
+        # Normalize test ID
+        test_id = test_id.replace("::()::", "::")
+        test_id = re.sub(r"\.pyc?::", r"::", test_id)
+        test_id = (test_id.replace(".", "_")
+                          .replace(os.sep, ".")
+                          .replace("/", ".")
+                          .replace('::', '.'))
+
+        # Obtain parameters, if any.
         first_bracket = test_id.find("[")
         if first_bracket > 0:
-            # [] -> (), make it look like nose parameterized tests
-            params = "(" + test_id[first_bracket + 1:]
-            if params.endswith("]"):
-                params = params[:-1] + ")"
+            # Replace hierarchy "." in parameters to "_" in parameters
+            params = test_id[first_bracket + 1:-1].replace(".", "_")
+            
+            # Remove parameters from testid
             test_id = test_id[:first_bracket]
-            if test_id.endswith("::"):
-                test_id = test_id[:-2]
         else:
             params = ""
 
-        test_id = test_id.replace("::()::", "::")
-        test_id = re.sub(r"\.pyc?::", r"::", test_id)
-        test_id = test_id.replace(".", "_").replace(os.sep, ".").replace("/", ".").replace('::', '.')
+        if test_id.endswith("::"):
+            test_id = test_id[:-2]
 
         if params:
-            params = params.replace(".", "_")
-            test_id += params
+            # Make a parameterized test looks like multiple tests.
+            test_id = f"{test_id}.{params}"
+
+        # Add .test suffix so that each test can be treated as a test class.
+        # This ensures that the parallel test execution feature distributes
+        # the tests evenly across the agents in a finer granularity.
+        test_id += ".test"
 
         return test_id
 
@@ -170,7 +181,7 @@ class EchoTeamCityMessages(object):
         # See IDEA-176950, PY-31836
         test_name = location[2]
         if test_name:
-            test_name = str(test_name).split(".")[-1]
+            test_name = str(test_name).split("[")[0].split(".")[-1]
         self.ensure_test_start_reported(self.format_test_id(nodeid, location), test_name)
 
     def pytest_runtest_protocol(self, item):
